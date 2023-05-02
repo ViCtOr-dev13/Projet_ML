@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Apr 30 18:25:52 2023
+
+@author: yannt
+"""
+
+# Import
+#------------------------------------------------------------------------------
+import warnings
+import pandas as pd
+
+import constant as C
+import src.function.function as f
+
+
+#------------------------------------------------------------------------------
+warnings.filterwarnings('ignore')
+#------------------------------------------------------------------------------
+
+df_spam = pd.read_csv(C.PATH_DATASET_1 + C.SPAM)
+df_phishing = pd.read_csv(C.PATH_DATASET_1 + C.PHISHING)
+df_malware = pd.read_csv(C.PATH_DATASET_1 + C.MALWARE)
+df_defacement = pd.read_csv(C.PATH_DATASET_1 + C.DEFACEMENT)
+
+rf_spam = C.RF_SPAM
+rf_phishing = C.RF_PHISHING
+rf_malware = C.RF_MALWARE
+rf_defacement = C.RF_DEFACEMENT
+
+target = C.TARGET
+
+
+(X_train_spam, X_test_spam, X_validate_spam, 
+ y_train_spam, y_test_spam, y_validate_spam) = f.split_dataframe(df_spam, 
+                                                                 target)
+
+(X_train_phishing, X_test_phishing, X_validate_phishing, 
+ y_train_phishing, y_test_phishing, y_validate_phishing) = f.split_dataframe(df_phishing, 
+                                                                             target)
+
+(X_train_malware, X_test_malware, X_validate_malware, 
+ y_train_malware, y_test_malware, y_validate_malware) = f.split_dataframe(df_malware, 
+                                                                          target)
+
+(X_train_defacement, X_test_defacement, X_validate_defacement, 
+ y_train_defacement, y_test_defacement, y_validate_defacement) = f.split_dataframe(df_defacement, 
+                                                                                   target)
+
+
+                                                                                
+    
