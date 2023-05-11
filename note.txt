@@ -1,0 +1,6 @@
+- lire le pdf
+- comprendre les variables
+- comprendre le dataset 
+- poser des questions au prof
+- push code on github
+- extension chrome qui verifie l'URL dans un mail
