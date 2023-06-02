@@ -9,7 +9,7 @@ Created on Mon Apr 10 16:34:58 2023
 #------------------------------------------------------------------------------
 import warnings
 import src.constant as C
-import src.function.function as f
+import src.function.preprocessing as p
 
 import pandas as pd
 
@@ -34,9 +34,9 @@ warnings.filterwarnings('ignore')
 
 def print_accuracy_voting_classifier(data_file, target, classifiers):
     df = pd.read_csv(data_file)
-    df = f.fill_nan_mean(df)
+    p.fill_nan_mean(df)
     (X_train, X_test,X_validate, 
-     y_train, y_test, y_validate) = f.split_dataframe(data_file, 
+     y_train, y_test, y_validate) = p.split_dataframe(df, 
                                                            target)
     vc = VotingClassifier(estimators = classifiers)
     vc.fit(X_train, y_train)
@@ -50,9 +50,9 @@ lr = LogisticRegression()
 knn = KNN()
 dt = DecisionTreeClassifier()
 
-classifiers = {('Logisitic Regression', lr),
+classifiers = [('Logisitic Regression', lr),
                ('K Nearest Neighbours', knn),
-               ('Classification Tree', dt)}
+               ('Classification Tree', dt)]
 
 #------------------------------------------------------------------------------
 # SPAM

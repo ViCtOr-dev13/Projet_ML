@@ -10,7 +10,7 @@ Created on Thu Apr  6 18:52:27 2023
 #------------------------------------------------------------------------------
 import warnings
 import src.constant as C
-import src.function.function as f
+import src.function.preprocessing as p
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -36,12 +36,12 @@ warnings.filterwarnings('ignore')
 
 # SPAM
 df_spam = pd.read_csv(C.PATH_DATASET + C.SPAM)
-f.drop_na_target(df_spam, C.TARGET)
-f.replace_target(df_spam, C.TARGET, C.REPLACE_SPAM, C.REPLACE)
-f.fill_nan_mean(df_spam)
+p.drop_na_target(df_spam, C.TARGET)
+p.replace_target(df_spam, C.TARGET, C.REPLACE_SPAM, C.REPLACE)
+p.fill_nan_mean(df_spam)
 
 (X_train, X_test,X_validate, 
- y_train, y_test, y_validate) = f.split_dataframe(df_spam, 
+ y_train, y_test, y_validate) = p.split_dataframe(df_spam, 
                                                    C.TARGET)
 
 rf_spam = RandomForestClassifier(n_estimators= 1400,

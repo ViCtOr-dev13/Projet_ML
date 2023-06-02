@@ -28,6 +28,9 @@ BEST_PHISHING = "Phishing_BestFirst.csv"
 BEST_SPAM = "Spam_BestFirst.csv"
 
 
+PATH_RESULT_RF = "../../result/randomized_rf/"
+PATH_RESULT_FEATURES = "../../result/features_selected/"
+
 
 LISTE_ALL = [DEFACEMENT, MALWARE, PHISHING, SPAM]
 
@@ -54,4 +57,4 @@ RF_SPAM_BEST = RandomForestClassifier()
 RF_PHISHING_BEST = RandomForestClassifier()
 RF_MALWARE_BEST = RandomForestClassifier()
 RF_DEFACEMENT_BEST = RandomForestClassifier()
-RF_ALL_BEST = RandomForestClassifier()
+RF_ALL_BEST = RandomForestClassifier(n_estimators=1400, min_samples_split=5, min_samples_leaf=1, max_features='sqrt', max_depth=80, bootstrap=False, random_state=0)

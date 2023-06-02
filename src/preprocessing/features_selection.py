@@ -9,18 +9,17 @@ Created on Mon Apr 24 19:11:33 2023
 #------------------------------------------------------------------------------
 import src.constant as C
 import warnings
-import src.function.function as f
+import src.function.preprocessing as p
+import src.function.features_selection as fs
+
 
 
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+import json
 
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import (accuracy_score, confusion_matrix, 
-                             classification_report, roc_curve)
+
 
 #------------------------------------------------------------------------------
 warnings.filterwarnings('ignore')
@@ -29,36 +28,37 @@ warnings.filterwarnings('ignore')
 
 if __name__=="__main__":
     
-    df = pd.read_csv(C.PATH_DATASET + C.SPAM)
-    f.drop_na_target(df, C.TARGET)
-    f.replace_target(df, C.TARGET, C.REPLACE_SPAM, C.REPLACE)
-    f.fill_nan_mean(df)
-    (X_train, X_test,X_validate, 
-     y_train, y_test, y_validate) = f.split_dataframe(df, C.TARGET)
+    df_spam = pd.read_csv(C.PATH_DATASET + C.SPAM)
+    df_phishing = pd.read_csv(C.PATH_DATASET + C.PHISHING)
+    df_malware = pd.read_csv(C.PATH_DATASET + C.MALWARE)
+    df_defacement = pd.read_csv(C.PATH_DATASET + C.DEFACEMENT)
+    df_all = pd.read_csv(C.PATH_DATASET + C.ALL)
+
+    target = C.TARGET
     
     
-                                            
-    rf = RandomForestClassifier(n_estimators= 1400,
-                                     min_samples_split = 2,
-                                     min_samples_leaf= 1,
-                                     max_features = 'auto',
-                                     max_depth = 40,
-                                     bootstrap = False)
-    steps = [('scaler', StandardScaler()),
-             ('random forest', rf)]
+    df_list = [["spam", df_spam, C.REPLACE_SPAM, C.REPLACE],
+               ["phishing", df_phishing, C.REPLACE_PHISHING, C.REPLACE],
+               ["malware", df_malware, C.REPLACE_MALWARE, C.REPLACE],
+               ["defacement", df_defacement, C.REPLACE_DEFACEMENT, C.REPLACE],
+               ["all", df_all, C.REPLACE_ALL, C.REPLACE_1]]
     
+    for name, df, to_replace, replace in df_list:       
+        p.pre_preprocessing_pipeline(df, target, to_replace, replace)
+        
+        X, y = df.drop([target], axis = 1), df[target]
+        features = np.array(X.columns)
+        
+        selector = fs.selector_features(X, y, RandomForestClassifier(random_state = C.SEED))
+        
+        features_to_keep, features_to_delete = fs.select_features(selector, features)
+        
+        output = {}
+        output['features_to_keep'] = list(features_to_keep)
+        output['features_to_delete'] = list(features_to_delete)
 
-    pipeline = Pipeline(steps)
-    
-    rf_scaled = pipeline.fit(X_train, y_train)
-    
-    y_pred = rf_scaled.predict(X_test)
-    acc = accuracy_score(y_test, y_pred)
-
-    print(f"accuracy : {acc}")
-    print(f"confusion matrix : {confusion_matrix(y_test, y_pred)}")
-    print(f"classification report  : {classification_report(y_test, y_pred)}")
-
-
-
+        with open(f"{C.PATH_RESULT_FEATURES}{name}.json", 'w', encoding='utf8') as outfile:
+            json.dump(output, outfile, indent = 4, ensure_ascii=False)
+        
+        print(f"{name} done \n")
 

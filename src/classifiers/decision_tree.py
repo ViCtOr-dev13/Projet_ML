@@ -9,7 +9,7 @@ Created on Thu Apr 27 17:35:29 2023
 #------------------------------------------------------------------------------
 import warnings
 import src.constant as C
-import src.function.function as f
+import src.function.preprocessing as p
 
 import pandas as pd
 
@@ -32,10 +32,10 @@ warnings.filterwarnings('ignore')
 
 def print_accuracy_decision_tree(data_file, target):
     df = pd.read_csv(data_file)
-    df = f.fill_nan_mean(df)
+    p.fill_nan_mean(df)
     (X_train, X_test,X_validate, 
-     y_train, y_test, y_validate) = f.split_dataframe(data_file, 
-                                                           target)
+     y_train, y_test, y_validate) = p.split_dataframe(df, 
+                                                      target)
     dt = DecisionTreeClassifier()
     dt.fit(X_train, y_train)
     y_pred = dt.predict(X_test)

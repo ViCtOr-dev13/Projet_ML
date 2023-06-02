@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 import warnings
 import src.constant as C
-import src.function.function as f
+import src.function.preprocessing as p
 
 
 #------------------------------------------------------------------------------
@@ -22,15 +22,15 @@ warnings.filterwarnings('ignore')
 # Spam
 
 df = pd.read_csv(C.PATH_DATASET + C.SPAM)
-columns = f.get_nan_column(df)
+columns = p.get_nan_column(df)
 
 for column in columns:
     print(f"{column} : {df[column].describe()}\n")
 
 print(df[columns[0]].describe()['mean'])
 
-f.preprocessing_target(df, C.TARGET, C.REPLACE_SPAM, C.REPLACE)
-f.fill_nan_mean(df)
+p.preprocessing_target(df, C.TARGET, C.REPLACE_SPAM, C.REPLACE)
+p.fill_nan_mean(df)
 
 print(df.head(5))
     
