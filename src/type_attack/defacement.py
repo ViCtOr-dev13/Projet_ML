@@ -12,6 +12,7 @@ import warnings
 import pandas as pd
 import numpy as np
 import json
+import joblib
 
 import src.constant as C
 import src.function.preprocessing as p
@@ -21,60 +22,33 @@ import src.convert_url_to_csv as to_csv
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
-
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
 #------------------------------------------------------------------------------
 warnings.filterwarnings('ignore')
 #------------------------------------------------------------------------------
 
-target_best = C.TARGET_BEST
-scaler = StandardScaler()
+target = C.TARGET
 
-df_defacement_best = pd.read_csv(C.PATH_DATASET + C.BEST_DEFACEMENT)
-rf_defacement_best = RandomForestClassifier()
-p.pre_preprocessing_pipeline(df_defacement_best, target_best, C.REPLACE_DEFACEMENT, C.REPLACE)
+
+df = pd.read_csv(C.PATH_DATASET + C.NEW_DEFACEMENT)
+rf = RandomForestClassifier()
+
+p.pre_preprocessing_pipeline(df, target, C.REPLACE_DEFACEMENT, C.REPLACE)
 
                                                   
-(X_train_best, X_test_best, X_validate_best, 
- y_train_best, y_test_best, y_validate_best) = p.split_dataframe(df_defacement_best, 
-                                                   target_best)                                                  
+(X_train, X_test, X_validate, 
+ y_train, y_test, y_validate) = p.split_dataframe(df, 
+                                                   target)   
+                                                                 
+                                                                 
+rf.fit(X_train, y_train)
+y_pred = rf.predict(X_test)
+acc = accuracy_score(y_test, y_pred)
 
-scaler.fit_transform(X_train_best)                                                             
-rf_defacement_best.fit(X_train_best, y_train_best)
-
-data = []
-with open("../../datasets/URL/DefacementSitesURLFiltered.csv", 'r') as f:
-    lines = f.readlines()
-    for url in lines:
-        data.append(to_csv.url_to_dico(url))
-df = pd.DataFrame(data, columns=X_train_best.columns)
-df.to_csv('../../result/prediction/defacement.csv', index=False)
-
-
-df_1 = pd.read_csv('../../result/prediction/defacement.csv')
-df_1 = df_1[X_train_best.columns]
-scaler.transform(df_1)
-
-a = rf_defacement_best.predict(df_1)
-print(a)
-
-data = []
-with open("../../datasets/URL/Benign_list_big_final.csv", 'r') as f:
-    lines = f.readlines()
-    for url in lines:
-        data.append(to_csv.url_to_dico(url))
-df = pd.DataFrame(data, columns=X_train_best.columns)
-df.to_csv('../../result/prediction/benign.csv', index=False)
-
-
-df_1 = pd.read_csv('../../result/prediction/benign.csv')
-df_1 = df_1[X_train_best.columns]
-scaler.transform(df_1)
-
-b = rf_defacement_best.predict(df_1)
-print(b)
-
-accuracy = (np.count_nonzero(a == 1)/len(a) + np.count_nonzero(b == 0)/len(b))/2
-
-
-
+print(f"accuracy : {acc}")
+print(f"confusion matrix : {confusion_matrix(y_test, y_pred)}")
+print(f"classification report  : {classification_report(y_test, y_pred)}")                                                                 
+                                                                 
+          
+joblib.dump(rf, "../../result/rf/defacement.pkl")
