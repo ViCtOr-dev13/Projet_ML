@@ -6,6 +6,9 @@ from itertools import groupby
 from collections import Counter
 import math
 
+import src.from_url_to_csv as to_csv
+
+
 
 
 def count_chars(s, chars):
@@ -123,7 +126,7 @@ def parse_url(url):
     NumberRate_FileName = sum(c.isdigit() for c in file_name) / len(file_name) if file_name else 0
 
     extension = os.path.splitext(parsed.path)[1]
-    #NumberRate_Extension = sum(c.isdigit() for c in extension) / len(extension) if extension else 0
+    NumberRate_Extension = sum(c.isdigit() for c in extension) / len(extension) if extension else 0
 
     after_path = url.split(parsed.path, 1)[-1]
     NumberRate_AfterPath = sum(c.isdigit() for c in after_path) / len(after_path) if after_path else 0
@@ -142,6 +145,9 @@ def parse_url(url):
 
     extension = os.path.splitext(parsed.path)[1]
     entropy_extension = -sum(p * math.log(p) / math.log(2.0) for p in Counter(extension).values())
+    
+    entropy_afterpath = -sum(p * math.log(p) / math.log(2.0) for p in Counter(after_path).values())
+    
 
 
 ################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################
@@ -191,7 +197,12 @@ def parse_url(url):
 
     url_queries_variable = len(variables)
     delimeter_count = sum(c in ['-', '_', '~', '.'] for c in chars)
-    number_rate_filename = sum(c.isdigit() for c in parsed.path.split('/')[-1]) / len(parsed.path.split('/')[-1]) if '/' in parsed.path else 0
+    if  (len(parsed.path.split('/')[-1]) == 0):
+         number_rate_filename = 0
+    else :
+        number_rate_filename = sum(c.isdigit() for c in parsed.path.split('/')[-1]) / len(parsed.path.split('/')[-1]) if '/' in parsed.path else 0.1
+    #number_rate_filename = 0
+    #print(parsed.path.split('/')[-2])
     symbol_count_directoryname = sum(not c.isalnum() for c in parsed.path.split('/')[1]) if '/' in parsed.path else 0
 
     symbol_count_filename = sum(not c.isalnum() for c in parsed.path.split('/')[-1]) if '/' in parsed.path else 0
@@ -202,15 +213,51 @@ def parse_url(url):
 
     # URL_Type_obf_Type
     # Déterminer si une URL est de type "obf" (obfusquée) besoin d'une base de données de sites malveillants ou  méthode d'apprentissage automatique pour classer l'URL
-    return [querylength, domain_token_count, path_token_count, avgdomaintokenlen, longdomaintokenlen, avgpathtokenlen, tld, charcompvowels, charcompace, url_len, domain_len, path_len, is_port_80, num_dots, entropy_url, filename_len, ext_len, query_letter_count, query_digit_count, spcharUrl, delimeter_Domain, delimeter_path, NumberRate_URL, NumberRate_Domain, NumberRate_DirectoryName, URL_Letter_Count, host_letter_count, Directory_LetterCount, Filename_LetterCount, Extension_LetterCount, ISIpAddressInDomainName, LongestPathTokenLength, NumberofDotsinURL, URL_sensitiveWord, NumberRate_FileName, '''NumberRate_Extension''', NumberRate_AfterPath, SymbolCount_URL, SymbolCount_Domain, entropy_url, entropy_domain, entropy_directoryname, entropy_filename, entropy_extension, ldl_url, ldl_domain, ldl_path, ldl_filename, ldl_getArg, dld_url, dld_domain, dld_path, dld_filename, dld_getArg, subDirLen, ArgLen, pathurlRatio, ArgUrlRatio, argDomanRatio, domainUrlRatio, pathDomainRatio, argPathRatio, executable, character_continuity_rate, longest_variable_value, url_digit_count, host_digit_count, directory_digit_count, filename_digit_count, extension_digit_count, domain_longest_word_length, path_longest_word_length, sub_directory_longest_word_length, arguments_longest_word_length, url_queries_variable, delimeter_count, number_rate_filename, symbol_count_directoryname, symbol_count_filename, symbol_count_extension, symbol_count_afterpath]
+    #return [querylength, domain_token_count, path_token_count, avgdomaintokenlen, longdomaintokenlen, avgpathtokenlen, tld, charcompvowels, charcompace, url_len, domain_len, path_len, is_port_80, num_dots, entropy_url, filename_len, ext_len, query_letter_count, query_digit_count, spcharUrl, delimeter_Domain, delimeter_path, NumberRate_URL, NumberRate_Domain, NumberRate_DirectoryName, URL_Letter_Count, host_letter_count, Directory_LetterCount, Filename_LetterCount, Extension_LetterCount, ISIpAddressInDomainName, LongestPathTokenLength, NumberofDotsinURL, URL_sensitiveWord, NumberRate_FileName, 'NumberRate_Extension', NumberRate_AfterPath, SymbolCount_URL, SymbolCount_Domain, entropy_url, entropy_domain, entropy_directoryname, entropy_filename, entropy_extension, ldl_url, ldl_domain, ldl_path, ldl_filename, ldl_getArg, dld_url, dld_domain, dld_path, dld_filename, dld_getArg, subDirLen, ArgLen, pathurlRatio, ArgUrlRatio, argDomanRatio, domainUrlRatio, pathDomainRatio, argPathRatio, executable, character_continuity_rate, longest_variable_value, url_digit_count, host_digit_count, directory_digit_count, filename_digit_count, extension_digit_count, domain_longest_word_length, path_longest_word_length, sub_directory_longest_word_length, arguments_longest_word_length, url_queries_variable, delimeter_count, number_rate_filename, symbol_count_directoryname, symbol_count_filename, symbol_count_extension, symbol_count_afterpath]
+    return [querylength, domain_token_count, path_token_count, avgdomaintokenlen, longdomaintokenlen, avgpathtokenlen, tld, charcompvowels, charcompace, ldl_url, ldl_domain, ldl_path, ldl_filename, ldl_getArg, dld_url, dld_domain, dld_path, dld_filename, dld_getArg, url_len, domain_len, path_len, subDirLen, filename_len, ext_len, ArgLen, pathurlRatio, ArgUrlRatio, argDomanRatio, domainUrlRatio, pathDomainRatio, argPathRatio, executable, is_port_80, num_dots, ISIpAddressInDomainName, character_continuity_rate, longest_variable_value, url_digit_count, host_DigitCount, directory_digit_count, filename_digit_count, extension_digit_count, query_digit_count, URL_Letter_Count, host_letter_count, Directory_LetterCount, Filename_LetterCount, Extension_LetterCount, query_letter_count, LongestPathTokenLength, domain_longest_word_length, path_longest_word_length, sub_directory_longest_word_length, arguments_longest_word_length, URL_sensitiveWord, url_queries_variable, spcharUrl, delimeter_Domain, delimeter_path, delimeter_Count, NumberRate_URL, NumberRate_Domain, NumberRate_DirectoryName, number_rate_filename, NumberRate_Extension, NumberRate_AfterPath, SymbolCount_URL, SymbolCount_Domain, symbol_count_directoryname, symbol_count_filename, symbol_count_extension, symbol_count_afterpath, entropy_url, entropy_domain, entropy_directoryname, entropy_filename, entropy_extension, entropy_afterpath] 
 
-data = []
-url = "http://www.sinduscongoias.com.br/index.html"
-data.append(parse_url(url))
 
-df = pd.DataFrame(data, columns=["Querylength", "domain_token_count", "path_token_count", "avgdomaintokenlen", "longdomaintokenlen", "avgpathtokenlen", "tld", "charcompvowels", "charcompace", "urlLen", "domainlength", "pathLength", "isPortEighty", "NumberofDotsinURL", "Entropy_URL", "fileNameLen", "this.fileExtLen", "Query_LetterCount", "Query_DigitCount", "spcharUrl", "delimeter_Domain", "delimeter_path", "NumberRate_URL", "NumberRate_Domain", "NumberRate_DirectoryName", "URL_Letter_Count", "host_letter_count", "Directory_LetterCount", "Filename_LetterCount", "Extension_LetterCount", "ISIpAddressInDomainName", "LongestPathTokenLength", "NumberofDotsinURL", "URL_sensitiveWord", "NumberRate_FileName", '''"NumberRate_Extension"''', "NumberRate_AfterPath", "SymbolCount_URL", "SymbolCount_Domain", "Entropy_URL", "Entropy_Domain", "Entropy_DirectoryName", "Entropy_Filename", "Entropy_Extension", "ldl_url", "ldl_domain", "ldl_path", "ldl_filename", "ldl_getArg", "dld_url", "dld_domain", "dld_path", "dld_filename", "dld_getArg", "subDirLen", "ArgLen", "pathurlRatio", "ArgUrlRatio", "argDomanRatio", "domainUrlRatio", "pathDomainRatio", "argPathRatio", "executable", "character_continuity_rate", "longest_variable_value", "url_digit_count", "host_digit_count", "directory_digit_count", "filename_digit_count", "extension_digit_count", "domain_longest_word_length", "path_longest_word_length", "sub_directory_longest_word_length", "arguments_longest_word_length", "url_queries_variable", "delimeter_count", "number_rate_filename", "symbol_count_directoryname", "symbol_count_filename", "symbol_count_extension", "symbol_count_afterpath"])
-print(df)
-
-df.to_csv('urls.csv', index=False)
+if __name__=="__main__":
+    #url = "http://astore.amazon.co.uk/allezvinsfrenchr/detail/1904010202/026-8324244-9330038"
+    
+    #url = "http://archive.theargus.co.uk/2002/11/9/"
+    
+    """
+    url = "http://apps.newham.gov.uk/Forums/localhistory/start.pl?noframes;read=25683"
+    
+    data = parse_url(url)
+    
+    
+    
+    df = pd.DataFrame([data], columns=['Querylength', 'domain_token_count', 'path_token_count',
+           'avgdomaintokenlen', 'longdomaintokenlen', 'avgpathtokenlen', 'tld',
+           'charcompvowels', 'charcompace', 'ldl_url', 'ldl_domain', 'ldl_path',
+           'ldl_filename', 'ldl_getArg', 'dld_url', 'dld_domain', 'dld_path',
+           'dld_filename', 'dld_getArg', 'urlLen', 'domainlength', 'pathLength',
+           'subDirLen', 'fileNameLen', 'this.fileExtLen', 'ArgLen', 'pathurlRatio',
+           'ArgUrlRatio', 'argDomanRatio', 'domainUrlRatio', 'pathDomainRatio',
+           'argPathRatio', 'executable', 'isPortEighty', 'NumberofDotsinURL',
+           'ISIpAddressInDomainName', 'CharacterContinuityRate',
+           'LongestVariableValue', 'URL_DigitCount', 'host_DigitCount',
+           'Directory_DigitCount', 'File_name_DigitCount', 'Extension_DigitCount',
+           'Query_DigitCount', 'URL_Letter_Count', 'host_letter_count',
+           'Directory_LetterCount', 'Filename_LetterCount',
+           'Extension_LetterCount', 'Query_LetterCount', 'LongestPathTokenLength',
+           'Domain_LongestWordLength', 'Path_LongestWordLength',
+           'sub-Directory_LongestWordLength', 'Arguments_LongestWordLength',
+           'URL_sensitiveWord', 'URLQueries_variable', 'spcharUrl',
+           'delimeter_Domain', 'delimeter_path', 'delimeter_Count',
+           'NumberRate_URL', 'NumberRate_Domain', 'NumberRate_DirectoryName',
+           'NumberRate_FileName', 'NumberRate_Extension', 'NumberRate_AfterPath',
+           'SymbolCount_URL', 'SymbolCount_Domain', 'SymbolCount_Directoryname',
+           'SymbolCount_FileName', 'SymbolCount_Extension',
+           'SymbolCount_Afterpath', 'Entropy_URL', 'Entropy_Domain',
+           'Entropy_DirectoryName', 'Entropy_Filename', 'Entropy_Extension',
+           'Entropy_Afterpath'])
+    print(df)
+    
+    df.to_csv('../result/prediction/test.csv', index=False)
+    """
+    
 
 

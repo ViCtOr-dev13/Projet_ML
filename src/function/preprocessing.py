@@ -61,13 +61,15 @@ def preprocessing_target(df, target, to_replace, replace):
     drop_na_target(df, target)
     replace_target(df, target, to_replace, replace)
     
-    
+
 def pre_preprocessing_pipeline(df, target, to_replace, replace):
     preprocessing_target(df, target, to_replace, replace)
     replace_nan(df)
     to_float(df)
     fill_nan_mean(df)
     return
+
+
 #------------------------------------------------------------------------------                
 # tools
 def reset_index_post_train_test_split(list_df):
@@ -112,4 +114,5 @@ def preprocessing_split_scaled_fit(df, target, to_replace, replace, rf):
     pipeline = Pipeline(steps)
     rf_scaled = pipeline.fit(X_train, y_train)
     return rf_scaled, X_validate, y_validate
+
 

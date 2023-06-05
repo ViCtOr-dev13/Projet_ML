@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sun Apr 30 18:25:52 2023
+Created on Fri Jun  2 15:31:57 2023
 
 @author: yannt
 """
@@ -9,84 +9,71 @@ Created on Sun Apr 30 18:25:52 2023
 # Import
 #------------------------------------------------------------------------------
 import warnings
-import pandas as pd
-import numpy as np
-import json
-
-import matplotlib.pyplot as plt
-
 import src.constant as C
 import src.function.preprocessing as p
+import src.convert_url_to_csv as to_csv
 
+import pandas as pd
+import matplotlib.pyplot as plt
 
-from sklearn.model_selection import RandomizedSearchCV
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import (accuracy_score, confusion_matrix, 
+                             classification_report, roc_curve)
 
 
+# Formule
+#------------------------------------------------------------------------------
+# precision = (true positive/ (true positive + false positive))
+# recall = true positive / (true positive + false negative)
+# accuracy = (true positive + true negative) / (total)
+# F1 score = 2 x (precision x recall)/ (precision + recall)
+
+
+# useful code
 #------------------------------------------------------------------------------
 warnings.filterwarnings('ignore')
 #------------------------------------------------------------------------------
 
+# SPAM
+df_spam = pd.read_csv(C.PATH_DATASET_1 + C.BEST_SPAM)
+p.drop_na_target(df_spam, C.TARGET_BEST)
+p.replace_target(df_spam, C.TARGET_BEST, C.REPLACE_SPAM, C.REPLACE)
+p.fill_nan_mean(df_spam)
 
-df = pd.read_csv(C.PATH_DATASET_1 + C.BEST_SPAM)
-p.pre_preprocessing_pipeline(df, C.TARGET_BEST, C.REPLACE_SPAM, C.REPLACE)
-X, y = df.drop([C.TARGET_BEST], axis = 1), df[C.TARGET_BEST]
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3)
+(X_train, X_test,X_validate, 
+ y_train, y_test, y_validate) = p.split_dataframe(df_spam, 
+                                                   C.TARGET_BEST)
 
-df = pd.read_csv(C.PATH_DATASET_1 + C.SPAM)
-p.pre_preprocessing_pipeline(df, C.TARGET, C.REPLACE_SPAM, C.REPLACE)
-X, y = df.drop([C.TARGET], axis = 1), df[C.TARGET]
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3)
+rf_spam = RandomForestClassifier(n_estimators= 1400,
+                                 min_samples_split = 2,
+                                 min_samples_leaf= 1,
+                                 max_features = 'auto',
+                                 max_depth = 40,
+                                 bootstrap = False)
 
+rf_spam.fit(X_train, y_train)
+y_pred = rf_spam.predict(X_test)
+acc = accuracy_score(y_test, y_pred)
 
-scaler = StandardScaler()
-
-X_train_scaled = scaler.fit_transform(X_train)
-
-
-
-pca = PCA(n_components = 3)
-
-PC_scores = pd.DataFrame(pca.fit_transform(X_train_scaled),
-               columns = ['PC 1', 'PC 2', 'PC 3'])
-PC_scores.head(6)
-
-p.reset_index_post_train_test_split([PC_scores, y_train])
-df_pca = pd.concat([PC_scores, y_train ], axis = 1)
-
-loadings = pd.DataFrame(pca.components_.T, columns=['PC1', 'PC2', "PC3"], 
-                        index=X_train.columns)
-
-
-PC1 = pca.fit_transform(X_train_scaled)[:,0]
-PC2 = pca.fit_transform(X_train_scaled)[:,1]
-PC3 = pca.fit_transform(X_train_scaled)[:,2]
-ldngs = pca.components_
-
-scalePC1 = 1.0/(PC1.max() - PC1.min())
-scalePC2 = 1.0/(PC2.max() - PC2.min())
-scalePC3 = 1.0/(PC3.max() - PC3.min())
-features = X_train.columns
+print(f"accuracy : {acc}")
+print(f"confusion matrix : {confusion_matrix(y_test, y_pred)}")
+print(f"classification report  : {classification_report(y_test, y_pred)}")
 
 
 
-fig, ax = plt.subplots(figsize=(14, 9))
- 
-for i, feature in enumerate(features):
-    if i % 2 == 0:
-        
-        ax.arrow(0, 0, ldngs[0, i], 
-                 ldngs[1, i])
-        ax.text(ldngs[0, i] * 1.15, 
-                ldngs[1, i] * 1.15, 
-                feature, fontsize=18)
- 
-ax.scatter(PC1 * scalePC1,PC2 * scalePC2)
- 
-ax.set_xlabel('PC1', fontsize=20)
-ax.set_ylabel('PC2', fontsize=20)
-ax.set_title('Figure 1', fontsize=20)
-plt.figure()
+N = 100
+data = []
+with open("../datasets/URL/spam_dataset.csv", 'r') as f:
+    for i in range(N):
+        url = next(f).strip()
+
+        data.append(to_csv.url_to_dico(url))
+df = pd.DataFrame(data, columns=X_train.columns)
+df.to_csv('../result/prediction/test.csv', index=False)
+
+
+df_1 = pd.read_csv('../result/prediction/test.csv')
+df_1 = df_1[X_train.columns]
+a = rf_spam.predict(df_1)
+print(a)

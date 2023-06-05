@@ -15,39 +15,47 @@ import json
 
 import src.constant as C
 import src.function.preprocessing as p
+import src.convert_url_to_csv as to_csv
 
 
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler
 
 
 #------------------------------------------------------------------------------
 warnings.filterwarnings('ignore')
 #------------------------------------------------------------------------------
 
-target = C.TARGET
 target_best = C.TARGET_BEST
-
-df_all = pd.read_csv(C.PATH_DATASET + C.ALL)
-rf_all = RandomForestClassifier()
-p.pre_preprocessing_pipeline(df_all, target, C.REPLACE_ALL, C.REPLACE_1)
-
-
+scaler = StandardScaler()
 
 df_all_best = pd.read_csv(C.PATH_DATASET + C.BEST_ALL)
 rf_all_best = RandomForestClassifier()
 p.pre_preprocessing_pipeline(df_all_best, target_best, C.REPLACE_ALL, C.REPLACE_1)
 
-
-
-
-(X_train, X_test,X_validate, 
- y_train, y_test, y_validate) = p.split_dataframe(df_all, 
-                                                   target)
                                                   
 (X_train_best, X_test_best, X_validate_best, 
  y_train_best, y_test_best, y_validate_best) = p.split_dataframe(df_all_best, 
                                                    target_best)                                                  
 
+scaler.fit_transform(X_train_best)                                                             
+rf_all_best.fit(X_train_best, y_train_best)
+
+data = []
+with open("../../datasets/URL/spam_dataset.csv", 'r') as f:
+    lines = f.readlines()
+    for url in lines:
+        data.append(to_csv.url_to_dico(url))
+df = pd.DataFrame(data, columns=X_train_best.columns)
+df.to_csv('../../result/prediction/test.csv', index=False)
+
+
+df_1 = pd.read_csv('../../result/prediction/test.csv')
+df_1 = df_1[X_train_best.columns]
+scaler.transform(df_1)
+
+a = rf_all_best.predict(df_1)
+print(a)
 
 
